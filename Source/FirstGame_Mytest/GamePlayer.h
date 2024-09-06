@@ -19,8 +19,9 @@ class FIRSTGAME_MYTEST_API AGamePlayer : public ACharacter
 
 public:
 	AGamePlayer();
-	virtual void Tick(float DeltaTime) override;
+	void PerformAttack();
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	//受伤函数
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 protected:
 	virtual void BeginPlay() override;
@@ -43,14 +44,22 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
 	UAnimMontage* AttackMontage;                    //攻击动画
+
 protected:
 	void Move(const FInputActionValue& Value);  
 	void Look(const FInputActionValue& Value);
 	void Jump();
 	void Attack();
-	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
-	void PerformAttack();           
+	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted); //辅助Attack函数，播放完攻击动画才能进行下一次攻击
+ 
+public:
+	UPROPERTY(EditAnywhere, Category = "GamePlayer Attribute")
+	float MaxHealth;               //最大生命值
+	float CurrentHealth;           //当前生命值
+	UPROPERTY(EditAnywhere, Category = "GamePlayer Attribute")
+	float Damage;                  //伤害
+	
 private:
-	bool CanAttack;
-	TArray<AActor*> DamagedActors; //存本次攻击已经受伤的敌人
+	bool CanAttack;                //攻击动画控制
+	TArray<AActor*> DamagedActors; //存储本次攻击已经受伤的敌人
 };
