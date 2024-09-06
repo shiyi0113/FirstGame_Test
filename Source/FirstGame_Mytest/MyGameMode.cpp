@@ -1,5 +1,6 @@
 #include "MyGameMode.h"
 #include "EnemySpawner.h"
+#include "Sound/SoundBase.h"
 #include "Kismet/GameplayStatics.h"
 AMyGameMode::AMyGameMode()
 {
@@ -7,6 +8,11 @@ AMyGameMode::AMyGameMode()
 	if (PlayerPawnBPClass.Class != NULL)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
+	}
+	static ConstructorHelpers::FObjectFinder<USoundBase> WaveAudioAsset(TEXT("/Game/Audio/wave"));
+	if (WaveAudioAsset.Succeeded())
+	{
+		WaveAudio = WaveAudioAsset.Object;
 	}
 	CurrentWave = 0;
 	EnemiesAlive = 0;
@@ -29,9 +35,12 @@ void AMyGameMode::BeginPlay()
 
 void AMyGameMode::SpawnWave()
 {
-	if (EnemySpawner && WaveEnemyCounts.IsValidIndex(CurrentWave))
+	if(WaveAudio)
+		UGameplayStatics::PlaySound2D(this, WaveAudio);
+	CurrentWave++;
+	if (EnemySpawner && WaveEnemyCounts.IsValidIndex(CurrentWave - 1))
 	{
-		int32 NumberOfEnemies = WaveEnemyCounts[CurrentWave];
+		int32 NumberOfEnemies = WaveEnemyCounts[CurrentWave - 1];
 		EnemySpawner->SpawnMultipleRandomActors(NumberOfEnemies);
 		UE_LOG(LogTemp, Warning, TEXT("%d"), NumberOfEnemies);
 		EnemiesAlive = NumberOfEnemies;
@@ -44,10 +53,9 @@ void AMyGameMode::OnEnemyDestroyed()
 	EnemiesAlive--;
 	if (EnemiesAlive <= 0)
 	{
-		CurrentWave++;
 		if (WaveEnemyCounts.IsValidIndex(CurrentWave))
 		{
-			GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMyGameMode::SpawnWave, 10.0f, false);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMyGameMode::SpawnWave, 3.0f, false);
 		}
 		else
 		{

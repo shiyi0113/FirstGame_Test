@@ -11,6 +11,7 @@ class UBoxComponent;
 class AMyGameMode;
 class AGamePlayer;
 class UWidgetComponent;
+class UMetaSoundSource;
 UCLASS()
 class FIRSTGAME_MYTEST_API AGameEnemy : public ACharacter
 {
@@ -33,6 +34,7 @@ public:
 	UAnimMontage* AttackMontage;                    //攻击动画
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI") 
 	UWidgetComponent* HealthBarComponent;           //血条
+	UMetaSoundSource* DamageAudio;                  //受击音效
 	UPROPERTY(EditAnywhere, Category = "Enemy Attribute")
 	float MaxHealth;               //最大生命值
 	UPROPERTY(BlueprintReadOnly)

@@ -8,6 +8,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Controller.h"
+#include "MetasoundSource.h"
+#include "Kismet/GameplayStatics.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
@@ -36,9 +38,15 @@ AGamePlayer::AGamePlayer()
 	//箭头组件
 	AttackArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("ArrowComponent"));
 	AttackArrow->SetupAttachment(RootComponent);
+	//受击音效
+	static ConstructorHelpers::FObjectFinder<UMetaSoundSource> DamageAudioAsset(TEXT("/Game/Audio/MS_Damage"));
+	if (DamageAudioAsset.Succeeded())
+	{
+		DamageAudio = DamageAudioAsset.Object;
+	}
 	//初始化一些属性
 	CanAttack = true;
-	MaxHealth = 300.0f;
+	MaxHealth = 500.0f;
 	CurrentHealth = MaxHealth;
 	Damage = 10.0f;
 }
@@ -152,6 +160,10 @@ void AGamePlayer::PerformAttack()
 float AGamePlayer::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	CurrentHealth -= DamageAmount;
+	if (DamageAudio)
+	{
+		UGameplayStatics::SpawnSoundAtLocation(this, DamageAudio, GetActorLocation());
+	}
 	if (CurrentHealth <= 0.0f)
 	{
 		//角色死亡

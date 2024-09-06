@@ -10,6 +10,7 @@ class UInputMappingContext;
 class UInputAction;
 class UAnimMontage;
 class UArrowComponent;
+class UMetaSoundSource;
 struct FInputActionValue;
 
 UCLASS()
@@ -44,6 +45,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
 	UAnimMontage* AttackMontage;                    //攻击动画
+	UMetaSoundSource* DamageAudio;                  //受击音效
 
 protected:
 	void Move(const FInputActionValue& Value);  
@@ -51,10 +53,10 @@ protected:
 	void Jump();
 	void Attack();
 	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted); //辅助Attack函数，播放完攻击动画才能进行下一次攻击
- 
 public:
-	UPROPERTY(EditAnywhere, Category = "GamePlayer Attribute")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GamePlayer Attribute")
 	float MaxHealth;               //最大生命值
+	UPROPERTY(BlueprintReadOnly)
 	float CurrentHealth;           //当前生命值
 	UPROPERTY(EditAnywhere, Category = "GamePlayer Attribute")
 	float Damage;                  //伤害

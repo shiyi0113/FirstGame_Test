@@ -7,6 +7,7 @@
 #include "Components/ProgressBar.h"
 #include "AIController.h"
 #include "MyGameMode.h"
+#include "MetasoundSource.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -19,7 +20,11 @@ AGameEnemy::AGameEnemy()
 	AttackBox->SetupAttachment(RootComponent);
 	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarComponent"));
 	HealthBarComponent->SetupAttachment(RootComponent);
-
+	static ConstructorHelpers::FObjectFinder<UMetaSoundSource> DamageAudioAsset(TEXT("/Game/Audio/MS_Damage"));
+	if (DamageAudioAsset.Succeeded())
+	{
+		DamageAudio = DamageAudioAsset.Object;
+	}
 	GetCharacterMovement()->bOrientRotationToMovement = true;   //将旋转朝向运动
 	GetCharacterMovement()->MaxWalkSpeed = 250.f;               //最大移动速度
 	MaxHealth = 20.0f;
@@ -47,6 +52,10 @@ void AGameEnemy::Tick(float DeltaTime)
 float AGameEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	CurrentHealth -= DamageAmount;
+	if (DamageAudio)
+	{
+		UGameplayStatics::SpawnSoundAtLocation(this, DamageAudio, GetActorLocation());
+	}
 	UpdateHealthBar();
 	if (CurrentHealth <= 0.0f)
 	{
